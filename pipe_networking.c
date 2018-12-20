@@ -22,23 +22,23 @@ int server_handshake(int *to_client) {
   printf("Server waiting for client...\n");
   fd = open("server", O_RDONLY);
   char buf[HANDSHAKE_BUFFER_SIZE];
-  read(fd, buf, HANDSHAKE_BUFFER_SIZE);
+  read(fd, buf, sizeof(buf));
   printf("Server has received message from client...\n");
   printf("\"%s\"\n", buf);
 
   *to_client = open(buf, O_WRONLY);
-  // remove("server");
+  remove("server");
   printf("Server has removed WKP and connected to client...\n");
 
-  write(*to_client, ACK, HANDSHAKE_BUFFER_SIZE);
+  write(*to_client, ACK, sizeof(ACK));
   printf("Server has sent initial acknowledgement message to client...\n");
 
-  read(fd, buf, HANDSHAKE_BUFFER_SIZE);
+  char buf2[HANDSHAKE_BUFFER_SIZE];
+  read(fd, buf2, sizeof(buf2));
   printf("Server has received response from client...\n");
-  printf("\"%s\"\n", buf);
+  printf("\"%s\"\n", buf2);
 
   close(*to_client);
-  free(buf);
   close(fd);
   printf("Server has closed all connections to client...\n");
   printf("Server is waiting for new client...\n");
@@ -65,22 +65,21 @@ int client_handshake(int *to_server) {
   }
   printf("Private client FIFO created...\n");
 
-  *to_server = open("client", O_WRONLY);
-  write(*to_server, "client", BUFFER_SIZE);
+  *to_server = open("server", O_WRONLY);
+  write(*to_server, "client", sizeof("client"));
   printf("Client has connected to server and sent private FIFO name...\n");
 
   fd = open("client", O_RDONLY);
   char buf[HANDSHAKE_BUFFER_SIZE];
-  read(fd, buf, HANDSHAKE_BUFFER_SIZE);
+  read(fd, buf, sizeof(buf));
   printf("Client has received message from server and removed its private FIFO...\n");
   printf("\"%s\"\n", buf);
-  // remove("client");
+  remove("client");
 
-  write(*to_server, ACK, HANDSHAKE_BUFFER_SIZE);
+  write(*to_server, ACK, sizeof(ACK));
   printf("Client has sent response to server...\n");
 
   close(*to_server);
-  free(buf);
   close(fd);
   printf("Client has exited...\n");
 
