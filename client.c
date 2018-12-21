@@ -15,10 +15,11 @@ int main() {
 
   from_server = client_handshake( &to_server );
 
-  char * buf = malloc(BUFFER_SIZE*sizeof(char));
+  char buf[BUFFER_SIZE];
   while(1){
     printf("Enter input to send to server: ");
     fgets(buf, BUFFER_SIZE, stdin);
+    buf[strlen(buf)-1] = (char)NULL;
     write(to_server, buf, BUFFER_SIZE);
 
     read(from_server, buf, BUFFER_SIZE);
