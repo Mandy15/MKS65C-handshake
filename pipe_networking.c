@@ -26,24 +26,25 @@ int server_handshake(int *to_client) {
   printf("Server has received message from client...\n");
   printf("\"%s\"\n", buf);
 
-  *to_client = open(buf, O_WRONLY);
-  remove("server");
-  printf("Server has removed WKP and connected to client...\n");
+  int frk = fork();
+  if(!f){
+    printf("Remove WKP.\n");
+    remove("server");
+  }else{
+    *to_client = open(buf, O_WRONLY);
+    printf("Server has connected to client...\n");
 
-  write(*to_client, ACK, sizeof(ACK));
-  printf("Server has sent initial acknowledgement message to client...\n");
+    write(*to_client, ACK, sizeof(ACK));
+    printf("Server has sent initial acknowledgement message to client...\n");
 
-  char buf2[HANDSHAKE_BUFFER_SIZE];
-  read(fd, buf2, sizeof(buf2));
-  printf("Server has received response from client...\n");
-  printf("\"%s\"\n", buf2);
+    char buf2[HANDSHAKE_BUFFER_SIZE];
+    read(fd, buf2, sizeof(buf2));
+    printf("Server has received response from client...\n");
+    printf("\"%s\"\n", buf2);
 
-  close(*to_client);
-  close(fd);
-  printf("Server has closed all connections to client...\n");
-  printf("Server is waiting for new client...\n");
-
-  return fd;
+    return fd;
+  }
+  return 0;
 }
 
 
@@ -57,7 +58,6 @@ int server_handshake(int *to_client) {
   returns the file descriptor for the downstream pipe.
   =========================*/
 int client_handshake(int *to_server) {
-  remove("client");
   int fd;
   if(mkfifo("client", 0644) == -1){
     printf("mkfifo error: %s\n", strerror(errno));
@@ -78,10 +78,6 @@ int client_handshake(int *to_server) {
 
   write(*to_server, ACK, sizeof(ACK));
   printf("Client has sent response to server...\n");
-
-  close(*to_server);
-  close(fd);
-  printf("Client has exited...\n");
 
   return fd;
 }

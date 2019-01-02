@@ -19,11 +19,12 @@ int main() {
   while(1){
     printf("Enter input to send to server: ");
     fgets(buf, BUFFER_SIZE, stdin);
-    buf[strlen(buf)-1] = (char)NULL;
+    buf[strlen(buf)-1] = '\0';
     write(to_server, buf, BUFFER_SIZE);
 
     read(from_server, buf, BUFFER_SIZE);
     printf("Client has received message from server...\n");
     printf("\"%s\"\n", buf);
   }
+  return 0;
 }
